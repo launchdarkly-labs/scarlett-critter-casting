@@ -4,16 +4,30 @@
 
 Transform your pet into a nativity character through personality questions, AI casting, and GPT-Image-1 costume generation.
 
-![Christmas Critter Banner](https://img.shields.io/badge/Holiday%20Hackathon-2024-green?style=for-the-badge)
 ![LaunchDarkly](https://img.shields.io/badge/Powered%20by-LaunchDarkly-blue?style=for-the-badge)
 ![GPT-Image-1](https://img.shields.io/badge/Images%20by-DALL--E-purple?style=for-the-badge)
+
+## 🎨 Gallery
+
+<table>
+  <tr>
+    <td><img src="public/images/screenshot_1.png" width="200" alt="Screenshot 1"/></td>
+    <td><img src="public/images/screenshot_2.png" width="200" alt="Screenshot 2"/></td>
+    <td><img src="public/images/screenshot_3.png" width="200" alt="Screenshot 3"/></td>
+  </tr>
+  <tr>
+    <td><img src="public/images/screenshot_4.png" width="200" alt="Screenshot 4"/></td>
+    <td><img src="public/images/screenshot_5.png" width="200" alt="Screenshot 5"/></td>
+    <td><img src="public/images/screenshot_6.png" width="200" alt="Screenshot 6"/></td>
+  </tr>
+</table>
 
 ## 🚀 Quick Start
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/yourusername/ChristmasCastingCall.git
-cd ChristmasCastingCall
+git clone https://github.com/launchdarkly-labs/scarlett-critter-casting.git
+cd scarlett-critter-casting
 
 # 2. Install dependencies
 npm install
@@ -75,15 +89,6 @@ Create an AI configuration in your LaunchDarkly dashboard:
    - Set "Default variation" to `festive` (or your preferred variation)
    - OR add a targeting rule to serve the `festive` variation to all users
 3. **Save and turn ON the feature flag**
-
-**Judge Configuration** (attach to this AI config):
-- **Enable Judge**: Yes
-- **Add Judges**: Click "Add Judge" button in your AI config
-- **Available Judge Types**:
-  - **Accuracy**: Set to **100%** weight - Evaluates how well the casting matches the pet's personality
-  - **Relevance**: (Optional) Evaluates if the response stays on topic and addresses the casting request
-  - **Toxicity**: (Optional) Ensures responses are family-friendly and appropriate
-- **Note**: The accuracy judge at 100% weight is sufficient for this use case, but you can add relevance and toxicity judges for additional safety
 
 **Judge Configuration** (attach to this AI config):
 - **Enable Judge**: Yes
