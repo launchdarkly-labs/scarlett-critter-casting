@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calling All Christmas Critters - LaunchDarkly</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Righteous&family=Bungee&family=Abril+Fatface&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0a;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Background images layer with glow effect */
+    .background-images {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.4; /* Slightly increased for visibility with glow */
+    }
+
+    .bg-image {
+      position: absolute;
+      /* Glow effect from behind */
+      filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6))
+              drop-shadow(0 0 40px rgba(255, 215, 0, 0.3))
+              drop-shadow(0 0 60px rgba(255, 215, 0, 0.2));
+    }
+
+    /* Each image staggered at different distances from edges */
+    .bg-star {
+      top: 5%;
+      left: 8%;
+      width: 100px;
+      transform: rotate(-20deg);
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .bg-camel {
+      bottom: 10%;
+      left: 3%;
+      width: 140px;
+      transform: rotate(-10deg);
+      animation: float 10s ease-in-out infinite 1s;
+    }
+
+    .bg-camel2 {
+      top: 12%;
+      right: 8%;
+      width: 130px;
+      transform: rotate(5deg);
+      animation: float 11s ease-in-out infinite 4s;
+    }
+
+    .bg-sheep {
+      bottom: 10%;
+      right: 15%;
+      width: 90px;
+      animation: float 7s ease-in-out infinite 2s;
+    }
+
+    .bg-sheep2 {
+      top: 40%;
+      right: 5%;
+      width: 100px;
+      transform: rotate(-8deg);
+      animation: float 8s ease-in-out infinite 5s;
+    }
+
+    .bg-jesus {
+      top: 5%;
+      left: 65%;
+      width: 80px;
+      animation: float 12s ease-in-out infinite 1.5s;
+    }
+
+    .bg-mary {
+      bottom: 8%;
+      left: 60%;
+      width: 90px;
+      transform: rotate(-5deg);
+      animation: float 9s ease-in-out infinite 2.5s;
+      filter: drop-shadow(0 0 20px rgba(135, 206, 250, 0.6))
+              drop-shadow(0 0 40px rgba(135, 206, 250, 0.3));
+    }
+
+    .bg-joseph {
+      top: 35%;
+      left: 5%;
+      width: 100px;
+      transform: rotate(8deg);
+      animation: float 10s ease-in-out infinite 3s;
+      filter: drop-shadow(0 0 20px rgba(165, 42, 42, 0.6))
+              drop-shadow(0 0 40px rgba(165, 42, 42, 0.3));
+    }
+
+    .bg-wiseman {
+      top: 65%;
+      right: 10%;
+      width: 85px;
+      transform: rotate(10deg);
+      animation: float 11s ease-in-out infinite 3.5s;
+      filter: drop-shadow(0 0 20px rgba(138, 43, 226, 0.6))
+              drop-shadow(0 0 40px rgba(138, 43, 226, 0.3));
+    }
+
+    .bg-wiseman2 {
+      top: 65%;
+      left: 8%;
+      width: 95px;
+      transform: rotate(-15deg);
+      animation: float 9s ease-in-out infinite 4.5s;
+      filter: drop-shadow(0 0 20px rgba(255, 140, 0, 0.6))
+              drop-shadow(0 0 40px rgba(255, 140, 0, 0.3));
+    }
+
+    .bg-tree {
+      top: 30%;
+      right: 12%;
+      width: 120px;
+      animation: float 13s ease-in-out infinite 5.5s;
+      filter: drop-shadow(0 0 20px rgba(0, 128, 0, 0.6))
+              drop-shadow(0 0 40px rgba(0, 128, 0, 0.3));
+    }
+
+    /* Media query for smaller screens - hide some images to prevent overlap */
+    @media (max-width: 768px) {
+      .bg-wiseman2, .bg-tree, .bg-joseph {
+        display: none;
+      }
+      .bg-image {
+        opacity: 0.3;
+        width: 80px !important;
+      }
+    }
+
+    /* Multiple layers of animated sparkle stars background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image:
+        /* Layer 1 - Small white stars */
+        radial-gradient(1px 1px at 5% 10%, white, transparent),
+        radial-gradient(1px 1px at 15% 20%, white, transparent),
+        radial-gradient(1px 1px at 25% 8%, white, transparent),
+        radial-gradient(1px 1px at 35% 15%, white, transparent),
+        radial-gradient(1px 1px at 45% 25%, white, transparent),
+        radial-gradient(1px 1px at 55% 5%, white, transparent),
+        radial-gradient(1px 1px at 65% 18%, white, transparent),
+        radial-gradient(1px 1px at 75% 12%, white, transparent),
+        radial-gradient(1px 1px at 85% 22%, white, transparent),
+        radial-gradient(1px 1px at 95% 14%, white, transparent),
+        /* Layer 2 - Medium purple stars */
+        radial-gradient(2px 2px at 10% 40%, #bd00ff, transparent),
+        radial-gradient(2px 2px at 30% 50%, #bd00ff, transparent),
+        radial-gradient(2px 2px at 50% 45%, #bd00ff, transparent),
+        radial-gradient(2px 2px at 70% 55%, #bd00ff, transparent),
+        radial-gradient(2px 2px at 90% 48%, #bd00ff, transparent),
+        /* Layer 3 - Medium cyan stars */
+        radial-gradient(2px 2px at 20% 70%, #00d4ff, transparent),
+        radial-gradient(2px 2px at 40% 80%, #00d4ff, transparent),
+        radial-gradient(2px 2px at 60% 75%, #00d4ff, transparent),
+        radial-gradient(2px 2px at 80% 85%, #00d4ff, transparent),
+        /* Layer 4 - Large white stars */
+        radial-gradient(3px 3px at 12% 60%, white, transparent),
+        radial-gradient(3px 3px at 38% 35%, white, transparent),
+        radial-gradient(3px 3px at 62% 65%, white, transparent),
+        radial-gradient(3px 3px at 88% 30%, white, transparent),
+        /* Layer 5 - Extra small twinkling */
+        radial-gradient(1px 1px at 8% 92%, white, transparent),
+        radial-gradient(1px 1px at 18% 88%, #bd00ff, transparent),
+        radial-gradient(1px 1px at 28% 95%, white, transparent),
+        radial-gradient(1px 1px at 42% 90%, #00d4ff, transparent),
+        radial-gradient(1px 1px at 58% 93%, white, transparent),
+        radial-gradient(1px 1px at 72% 87%, #bd00ff, transparent),
+        radial-gradient(1px 1px at 82% 96%, white, transparent),
+        radial-gradient(1px 1px at 92% 91%, #00d4ff, transparent);
+      background-size:
+        200px 200px, 200px 200px, 200px 200px, 200px 200px, 200px 200px,
+        300px 300px, 300px 300px, 300px 300px, 300px 300px, 300px 300px,
+        350px 350px, 350px 350px, 350px 350px, 350px 350px, 350px 350px,
+        400px 400px, 400px 400px, 400px 400px, 400px 400px,
+        450px 450px, 450px 450px, 450px 450px, 450px 450px,
+        250px 250px, 250px 250px, 250px 250px, 250px 250px,
+        280px 280px, 280px 280px, 280px 280px, 280px 280px;
+      background-position: 0 0, 40px 60px, 130px 270px, 70px 100px, 200px 150px;
+      animation: sparkle 120s linear infinite;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    /* Second layer of stars moving in opposite direction */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image:
+        radial-gradient(1px 1px at 7% 15%, white, transparent),
+        radial-gradient(2px 2px at 22% 35%, #bd00ff, transparent),
+        radial-gradient(1px 1px at 43% 25%, #00d4ff, transparent),
+        radial-gradient(3px 3px at 67% 45%, white, transparent),
+        radial-gradient(1px 1px at 84% 55%, #bd00ff, transparent),
+        radial-gradient(2px 2px at 13% 75%, white, transparent),
+        radial-gradient(1px 1px at 37% 65%, #00d4ff, transparent),
+        radial-gradient(2px 2px at 59% 85%, #bd00ff, transparent),
+        radial-gradient(1px 1px at 76% 95%, white, transparent),
+        radial-gradient(3px 3px at 91% 78%, #00d4ff, transparent);
+      background-size: 500px 500px, 400px 400px, 350px 350px, 300px 300px, 250px 250px;
+      animation: sparkle-reverse 150s linear infinite;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    @keyframes sparkle-reverse {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    /* Decorative shapes */
+    .container::before {
+      content: '⊕';
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 24px;
+      color: rgba(189, 0, 255, 0.3);
+      animation: rotate-slow 20s linear infinite;
+    }
+
+    .container::after {
+      content: '◉';
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      font-size: 20px;
+      color: rgba(0, 212, 255, 0.3);
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    /* Plus star decorations */
+    .plus-star {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      opacity: 0.3;
+    }
+
+    .plus-star::before,
+    .plus-star::after {
+      content: '';
+      position: absolute;
+      background: linear-gradient(135deg, #bd00ff, #00d4ff);
+    }
+
+    .plus-star::before {
+      width: 2px;
+      height: 20px;
+      left: 9px;
+      top: 0;
+    }
+
+    .plus-star::after {
+      width: 20px;
+      height: 2px;
+      left: 0;
+      top: 9px;
+    }
+
+    @keyframes rotate-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes sparkle {
+      from { transform: translateY(0); }
+      to { transform: translateY(-100%); }
+    }
+
+    /* LaunchDarkly gradient accent */
+    .gradient-accent {
+      background: linear-gradient(135deg, #bd00ff, #00d4ff, #bd00ff);
+      background-size: 200% 200%;
+      animation: gradient-shift 8s ease infinite;
+    }
+
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background: rgba(20, 20, 25, 0.95);
+      border: 1px solid rgba(189, 0, 255, 0.3);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow:
+        0 0 60px rgba(189, 0, 255, 0.3),
+        0 20px 60px rgba(0, 212, 255, 0.2),
+        inset 0 0 120px rgba(189, 0, 255, 0.05);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 3.2em;
+      font-family: 'Bebas Neue', 'Impact', sans-serif;
+      font-weight: 400;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #bd00ff, #00d4ff, #bd00ff);
+      background-size: 200% 200%;
+      animation: gradient-shift 8s ease infinite;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-shadow: 0 0 30px rgba(189, 0, 255, 0.5);
+    }
+
+    .subtitle {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 30px;
+      font-size: 1.1em;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .question-card {
+      background: rgba(189, 0, 255, 0.1);
+      border: 1px solid rgba(189, 0, 255, 0.3);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 25px;
+      margin-bottom: 20px;
+      display: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .question-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #bd00ff, #00d4ff, transparent);
+      animation: slide 3s linear infinite;
+    }
+
+    @keyframes slide {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(100%); }
+    }
+
+    .question-card.active {
+      display: block;
+      animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .question-title {
+      font-size: 1.3em;
+      color: #ffffff;
+      margin-bottom: 20px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .option {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 15px;
+      margin: 12px 0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1.05em;
+      color: rgba(255, 255, 255, 0.9);
+      position: relative;
+    }
+
+    .option:hover {
+      background: rgba(189, 0, 255, 0.2);
+      border-color: rgba(189, 0, 255, 0.5);
+      transform: translateX(5px);
+      box-shadow: 0 0 30px rgba(189, 0, 255, 0.3);
+    }
+
+    .option.selected {
+      background: linear-gradient(135deg, rgba(189, 0, 255, 0.3), rgba(0, 212, 255, 0.3));
+      color: white;
+      border-color: #bd00ff;
+      box-shadow: 0 0 30px rgba(189, 0, 255, 0.4);
+    }
+
+    .pet-info {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      font-size: 1.05em;
+      color: white;
+      transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif;
+    }
+
+    input[type="text"]::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #bd00ff;
+      background: rgba(189, 0, 255, 0.1);
+      box-shadow: 0 0 20px rgba(189, 0, 255, 0.3);
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #bd00ff, #00d4ff);
+      color: white;
+      border: none;
+      padding: 16px 40px;
+      border-radius: 12px;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: block;
+      margin: 30px auto;
+      position: relative;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 40px rgba(189, 0, 255, 0.4);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .progress {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 30px 0;
+    }
+
+    .progress-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .progress-dot.active {
+      background: linear-gradient(135deg, #bd00ff, #00d4ff);
+      transform: scale(1.5);
+      box-shadow: 0 0 20px rgba(189, 0, 255, 0.6);
+    }
+
+    .progress-dot.active::after {
+      content: '✨';
+      position: absolute;
+      top: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 20px;
+      animation: twinkle 1s ease-in-out infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0; transform: translateX(-50%) scale(0.8); }
+      50% { opacity: 1; transform: translateX(-50%) scale(1.2); }
+    }
+
+    .result {
+      display: none;
+      text-align: center;
+      padding: 35px;
+      background: rgba(189, 0, 255, 0.1);
+      border: 1px solid rgba(189, 0, 255, 0.3);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .result::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(189, 0, 255, 0.1) 0%, transparent 70%);
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(0.8); opacity: 0; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+
+    .result.show {
+      display: block;
+      animation: tada 1s;
+    }
+
+    @keyframes tada {
+      0% { transform: scale(1); }
+      10%, 20% { transform: scale(0.9) rotate(-3deg); }
+      30%, 50%, 70%, 90% { transform: scale(1.1) rotate(3deg); }
+      40%, 60%, 80% { transform: scale(1.1) rotate(-3deg); }
+      100% { transform: scale(1) rotate(0); }
+    }
+
+    .role-name {
+      font-size: 2.8em;
+      margin: 25px 0;
+      font-weight: 800;
+      background: linear-gradient(135deg, #bd00ff, #00d4ff, #bd00ff);
+      background-size: 200% 200%;
+      animation: gradient-shift 8s ease infinite;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stars {
+      font-size: 2.2em;
+      margin: 15px 0;
+      filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+      animation: star-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes star-glow {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .photo-upload {
+      border: 2px dashed rgba(189, 0, 255, 0.5);
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 20px 0;
+      background: rgba(189, 0, 255, 0.05);
+    }
+
+    .photo-upload:hover {
+      background: rgba(189, 0, 255, 0.15);
+      border-color: #bd00ff;
+      box-shadow: 0 0 30px rgba(189, 0, 255, 0.3);
+    }
+
+    .emoji-icon {
+      font-size: 3em;
+      margin-bottom: 10px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 40px;
+      color: white;
+    }
+
+    .loading.show {
+      display: block;
+    }
+
+    .loading h2 {
+      background: linear-gradient(135deg, #bd00ff, #00d4ff, #bd00ff);
+      background-size: 200% 200%;
+      animation: gradient-shift 8s ease infinite;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .loading p {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .spinner {
+      border: 3px solid rgba(189, 0, 255, 0.1);
+      border-top: 3px solid transparent;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      margin: 30px auto;
+      position: relative;
+      animation: spin 1s linear infinite;
+    }
+
+    .spinner::before {
+      content: '';
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      right: -3px;
+      bottom: -3px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      border-top: 3px solid #bd00ff;
+      animation: spin 2s linear infinite reverse;
+    }
+
+    .spinner::after {
+      content: '';
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      right: 6px;
+      bottom: 6px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      border-top: 3px solid #00d4ff;
+      animation: spin 1.5s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .costume-image {
+      width: 100%;
+      max-width: 500px;
+      border-radius: 16px;
+      margin: 20px auto;
+      display: block;
+      border: 2px solid rgba(189, 0, 255, 0.3);
+      box-shadow:
+        0 0 40px rgba(189, 0, 255, 0.3),
+        0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .error-message {
+      background: rgba(255, 0, 100, 0.2);
+      border: 1px solid rgba(255, 0, 100, 0.5);
+      color: white;
+      padding: 15px;
+      border-radius: 12px;
+      margin: 20px 0;
+      display: none;
+      backdrop-filter: blur(10px);
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    /* Christmas decorations */
+    .christmas-icon {
+      display: inline-block;
+      animation: sparkle-icon 3s ease-in-out infinite;
+    }
+
+    @keyframes sparkle-icon {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.1) rotate(5deg); }
+    }
+
+    /* Floating stars animation */
+    .floating-stars {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .star {
+      position: absolute;
+      color: white;
+      animation: float-up 10s linear infinite;
+      opacity: 0;
+    }
+
+    .star:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 8s; font-size: 14px; color: #ff0000; }
+    .star:nth-child(2) { left: 20%; animation-delay: 1s; animation-duration: 10s; font-size: 18px; color: white; }
+    .star:nth-child(3) { left: 30%; animation-delay: 2s; animation-duration: 12s; font-size: 12px; color: #ff0000; }
+    .star:nth-child(4) { left: 40%; animation-delay: 3s; animation-duration: 9s; font-size: 20px; color: white; }
+    .star:nth-child(5) { left: 50%; animation-delay: 4s; animation-duration: 11s; font-size: 16px; color: #ff0000; }
+    .star:nth-child(6) { left: 60%; animation-delay: 5s; animation-duration: 8s; font-size: 14px; color: white; }
+    .star:nth-child(7) { left: 70%; animation-delay: 6s; animation-duration: 10s; font-size: 22px; color: #ff0000; }
+    .star:nth-child(8) { left: 80%; animation-delay: 7s; animation-duration: 13s; font-size: 12px; color: white }
+    .star:nth-child(9) { left: 90%; animation-delay: 8s; animation-duration: 9s; font-size: 18px; color: #ff0000; }
+    .star:nth-child(10) { left: 5%; animation-delay: 9s; animation-duration: 11s; font-size: 16px; color: white; }
+    .star:nth-child(11) { left: 15%; animation-delay: 10s; animation-duration: 8s; font-size: 20px; color: #ff0000; }
+    .star:nth-child(12) { left: 25%; animation-delay: 11s; animation-duration: 12s; font-size: 14px; color: white; }
+    .star:nth-child(13) { left: 35%; animation-delay: 12s; animation-duration: 10s; font-size: 18px; color: #ff0000; }
+    .star:nth-child(14) { left: 45%; animation-delay: 13s; animation-duration: 9s; font-size: 16px; color: white; }
+    .star:nth-child(15) { left: 55%; animation-delay: 14s; animation-duration: 11s; font-size: 22px; color: #ff0000; }
+
+    @keyframes float-up {
+      0% {
+        bottom: -100px;
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        bottom: 100%;
+        opacity: 0;
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Twinkling effect overlay */
+    .twinkle-overlay {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(4px 4px at 15% 25%, rgba(255, 255, 255, 0.8), transparent),
+        radial-gradient(3px 3px at 85% 75%, rgba(189, 0, 255, 0.8), transparent),
+        radial-gradient(4px 4px at 45% 55%, rgba(0, 212, 255, 0.8), transparent);
+      background-size: 100% 100%;
+      animation: twinkle-effect 3s ease-in-out infinite;
+      z-index: 2;
+    }
+
+    @keyframes twinkle-effect {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 0.6; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background images layer - each image used only once with glow effect -->
+  <div class="background-images">
+    <!-- Star -->
+    <img src="/images/star.png" class="bg-image bg-star" alt="Christmas star">
+
+    <!-- Camels -->
+    <img src="/images/camel.png" class="bg-image bg-camel" alt="Christmas camel">
+    <img src="/images/camel2.png" class="bg-image bg-camel2" alt="Christmas camel">
+
+    <!-- Sheep -->
+    <img src="/images/sheep.png" class="bg-image bg-sheep" alt="Christmas sheep">
+    <img src="/images/sheep2.png" class="bg-image bg-sheep2" alt="Christmas sheep">
+
+    <!-- Nativity Scene Characters -->
+    <img src="/images/jesus.png" class="bg-image bg-jesus" alt="Baby Jesus">
+    <img src="/images/mary.png" class="bg-image bg-mary" alt="Mary">
+    <img src="/images/joseph.png" class="bg-image bg-joseph" alt="Joseph">
+
+    <!-- Wise Men -->
+    <img src="/images/wiseman.png" class="bg-image bg-wiseman" alt="Wise man">
+    <img src="/images/wiseman2.png" class="bg-image bg-wiseman2" alt="Wise man">
+
+    <!-- Christmas Tree -->
+    <img src="/images/tree.png" class="bg-image bg-tree" alt="Christmas tree">
+  </div>
+
+  <!-- Floating stars background -->
+  <div class="floating-stars">
+    <span class="star">✦</span>
+    <span class="star">✧</span>
+    <span class="star">✦</span>
+    <span class="star">✧</span>
+    <span class="star">✦</span>
+    <span class="star">✧</span>
+    <span class="star">✦</span>
+    <span class="star">✧</span>
+    <span class="star">✦</span>
+    <span class="star">✧</span>
+    <span class="star">✦</span>
+    <span class="star">✧</span>
+    <span class="star">✦</span>
+    <span class="star">✧</span>
+    <span class="star">✦</span>
+  </div>
+
+  <!-- Twinkling overlay effect -->
+  <div class="twinkle-overlay"></div>
+
+  <div class="container">
+    <div class="christmas-trees" style="text-align: center; margin-bottom: 20px; font-size: 24px; color: white;">
+    </div>
+    <h1><span style="background: linear-gradient(135deg, #00ff00, white, #00ff00); background-size: 200% 200%; animation: gradient-shift 8s ease infinite; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Calling All</span><br><span style="background: linear-gradient(135deg, #ff0000, white, #ff0000); background-size: 200% 200%; animation: gradient-shift 8s ease infinite; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Christmas Critters</span></h1>
+    <div style="text-align: center; margin-top: 15px; font-size: 18px; color: rgba(255, 255, 255, 0.4);">
+    </div>
+
+    <!-- Pet Info -->
+    <div id="pet-info-section">
+      <div class="pet-info">
+        <input type="text" id="pet-name" placeholder="Pet's Name">
+        <input type="text" id="pet-type" placeholder="Type (dog, cat, etc)">
+      </div>
+      <div style="margin-top: 15px;">
+        <input type="text" id="pet-breed" placeholder="Breed (optional)" style="width: 100%;">
+      </div>
+      <button class="btn" style="background: linear-gradient(135deg, #bd00ff, #00d4ff); background-size: 200% 200%; animation: gradient-shift 8s ease infinite;" onclick="startQuiz()">Follow the Star!</button>
+    </div>
+
+    <!-- Questions -->
+    <div id="quiz-section" style="display: none;">
+      <div class="progress">
+        <div class="progress-dot active"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+      </div>
+
+      <div class="question-card active" data-question="0">
+        <div class="question-title">When entering a room, they're like:</div>
+        <div class="option" onclick="selectOption(0, 'a')">⭐ Celebrity on red carpet (everyone MUST look!)</div>
+        <div class="option" onclick="selectOption(0, 'b')">🥷 Ninja (suddenly they're just... there)</div>
+        <div class="option" onclick="selectOption(0, 'c')">🎈 Tour guide (greeting everyone personally)</div>
+        <div class="option" onclick="selectOption(0, 'd')">👑 Royalty (expecting treats and worship)</div>
+      </div>
+
+      <div class="question-card" data-question="1">
+        <div class="question-title">Their best performance:</div>
+        <div class="option" onclick="selectOption(1, 'a')">🍖 Pretended to be starving (ate 5 min ago)</div>
+        <div class="option" onclick="selectOption(1, 'b')">🦸 "Saved" you from the terrifying vacuum</div>
+        <div class="option" onclick="selectOption(1, 'c')">😇 Acted innocent after obvious mischief</div>
+        <div class="option" onclick="selectOption(1, 'd')">💃 Performed interpretive dance for dinner</div>
+      </div>
+
+      <div class="question-card" data-question="2">
+        <div class="question-title">At a pet party they'd be:</div>
+        <div class="option" onclick="selectOption(2, 'a')">🎤 The host making sure everyone's having fun</div>
+        <div class="option" onclick="selectOption(2, 'b')">👁️ Mysterious one watching from throne</div>
+        <div class="option" onclick="selectOption(2, 'c')">🏃 Starting all the games and zoomies</div>
+        <div class="option" onclick="selectOption(2, 'd')">😴 Asleep in the snack bowl</div>
+      </div>
+
+      <div class="question-card" data-question="3">
+        <div class="question-title">Hidden superpower:</div>
+        <div class="option" onclick="selectOption(3, 'a')">🔮 Telepathically knows when you're sad</div>
+        <div class="option" onclick="selectOption(3, 'b')">☀️ Finds the ONE sunny spot in any room</div>
+        <div class="option" onclick="selectOption(3, 'c')">📦 Makes any cardboard box a fortress</div>
+        <div class="option" onclick="selectOption(3, 'd')">🎾 Turns any object into toy or snack</div>
+      </div>
+
+      <div class="question-card" data-question="4">
+        <div class="question-title">If you put a hat on them:</div>
+        <div class="option" onclick="selectOption(4, 'a')">📸 Strike a pose - BORN for this!</div>
+        <div class="option" onclick="selectOption(4, 'b')">🗿 Freeze like statue until removed</div>
+        <div class="option" onclick="selectOption(4, 'c')">🍴 Try to eat it immediately</div>
+        <div class="option" onclick="selectOption(4, 'd')">🙃 Wear it backwards, pretend intentional</div>
+      </div>
+
+      <button class="btn" onclick="nextQuestion()" id="next-btn">Next Question ➡️</button>
+    </div>
+
+    <!-- Photo Upload -->
+    <div id="photo-section" style="display: none;">
+      <div class="photo-upload" onclick="document.getElementById('photo-input').click()">
+        <input type="file" id="photo-input" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
+        <div class="emoji-icon">📸</div>
+        <div id="upload-text">Click to upload your pet's photo</div>
+        <img id="photo-preview" style="display: none; max-width: 200px; margin-top: 15px; border-radius: 10px;">
+      </div>
+      <button class="btn" onclick="getCasting()">Cast! ✨</button>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <h2>Creating Christmas Magic...</h2>
+      <p id="loading-status" style="margin-top: 20px;">Casting your pet for the perfect role...</p>
+      <div style="margin-top: 30px; font-size: 0.9em; color: rgba(255,255,255,0.6);">
+        <div id="step1" style="margin: 5px 0;">⏳ Step 1: AI Casting Decision</div>
+        <div id="step2" style="margin: 5px 0; opacity: 0.3;">⏳ Step 2: Generating Costume Image (10-30s)</div>
+        <div id="step3" style="margin: 5px 0; opacity: 0.3;">⏳ Step 3: Judge Evaluation</div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div class="error-message" id="error">
+      <strong>Oops!</strong> <span id="error-text"></span>
+    </div>
+
+    <!-- Result -->
+    <div class="result" id="result">
+      <h2 id="result-header">✨ CASTING COMPLETE ✨</h2>
+      <div class="role-name" id="role">Loading...</div>
+
+      <!-- Costume Image -->
+      <img id="costume-image" class="costume-image" style="display: none;" alt="Your pet in costume">
+
+      <div id="explanation" style="margin-top: 20px; font-size: 1.1em; text-align: left; background: rgba(255,255,255,0.2); padding: 20px; border-radius: 15px;"></div>
+
+      <button class="btn" onclick="location.reload()">Cast Another Pet!</button>
+    </div>
+  </div>
+
+  <script>
+    let currentQuestion = 0;
+    const answers = [];
+    let petData = {};
+    let uploadedPhoto = null;
+
+    function startQuiz() {
+      petData.name = document.getElementById('pet-name').value || 'Mystery Pet';
+      petData.type = document.getElementById('pet-type').value || 'magical creature';
+      petData.breed = document.getElementById('pet-breed').value || '';
+
+      document.getElementById('pet-info-section').style.display = 'none';
+      document.getElementById('quiz-section').style.display = 'block';
+    }
+
+    function selectOption(questionNum, answer) {
+      answers[questionNum] = answer;
+
+      // Update visual selection
+      const card = document.querySelector(`.question-card[data-question="${questionNum}"]`);
+      card.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+      event.target.classList.add('selected');
+    }
+
+    function nextQuestion() {
+      if (!answers[currentQuestion]) {
+        alert('Please select an answer!');
+        return;
+      }
+
+      // Hide current, show next
+      document.querySelector(`.question-card[data-question="${currentQuestion}"]`).classList.remove('active');
+      currentQuestion++;
+
+      // Update progress dots
+      document.querySelectorAll('.progress-dot').forEach((dot, i) => {
+        dot.classList.toggle('active', i <= currentQuestion);
+      });
+
+      if (currentQuestion < 5) {
+        document.querySelector(`.question-card[data-question="${currentQuestion}"]`).classList.add('active');
+      } else {
+        // Show photo upload
+        document.getElementById('quiz-section').style.display = 'none';
+        document.getElementById('photo-section').style.display = 'block';
+      }
+
+      // Update button text
+      if (currentQuestion === 4) {
+        document.getElementById('next-btn').textContent = 'Finish Quiz! 🎉';
+      }
+    }
+
+    function handlePhotoUpload(event) {
+      const file = event.target.files[0];
+      if (file && file.type.startsWith('image/')) {
+        // We'll handle resizing on the server - accept any size
+        uploadedPhoto = file;
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById('photo-preview');
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+          document.getElementById('upload-text').textContent = 'Photo uploaded! Click to change';
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    async function getCasting() {
+      // Hide photo section, show loading
+      document.getElementById('photo-section').style.display = 'none';
+      document.getElementById('loading').classList.add('show');
+      document.getElementById('error').classList.remove('show');
+
+      // Reset progress indicators
+      document.getElementById('step1').innerHTML = '⏳ Step 1: AI Casting Decision';
+      document.getElementById('step1').style.opacity = '1';
+      document.getElementById('step2').innerHTML = '⏳ Step 2: Generating Costume Image (10-30s)';
+      document.getElementById('step2').style.opacity = '0.3';
+      document.getElementById('step3').innerHTML = '⏳ Step 3: Judge Evaluation';
+      document.getElementById('step3').style.opacity = '0.3';
+
+      try {
+        // Prepare form data with photo if uploaded
+        const formData = new FormData();
+        formData.append('name', petData.name);
+        formData.append('type', petData.type);
+        formData.append('breed', petData.breed);
+        formData.append('answers', JSON.stringify(answers));
+
+        if (uploadedPhoto) {
+          formData.append('photo', uploadedPhoto);
+        }
+
+        // Call backend API
+        const response = await fetch('/api/cast', {
+          method: 'POST',
+          body: formData  // Send as FormData to support file upload
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to get casting');
+        }
+
+        const data = await response.json();
+
+        // Update progress - casting complete, image generating
+        document.getElementById('step1').innerHTML = '✅ Step 1: AI Casting Decision';
+        document.getElementById('step2').style.opacity = '1';
+        document.getElementById('loading-status').textContent = '🎨 Generating your pet\'s costume image...';
+
+        // Check if we have judge score
+        if (data.judgeScore !== undefined) {
+          document.getElementById('step3').innerHTML = '✅ Step 3: Judge Evaluation';
+          document.getElementById('step3').style.opacity = '1';
+        }
+
+        // If we have an image, all steps are complete
+        if (data.imageUrl) {
+          document.getElementById('step2').innerHTML = '✅ Step 2: Costume Image Generated';
+        }
+
+        // Hide loading, show result
+        setTimeout(() => {
+          document.getElementById('loading').classList.remove('show');
+          document.getElementById('result').classList.add('show');
+        }, 1000); // Small delay to show completed steps
+
+        // Display role above the image
+        document.getElementById('role').textContent = `✨ ${data.role} ✨`;
+
+        // The explanation now comes as just the explanation text (no ROLE/EXPLANATION/COSTUME prefix)
+        const explanationDiv = document.getElementById('explanation');
+        explanationDiv.innerHTML = ''; // Clear existing content
+
+        // Create a nicely formatted explanation
+        const explanationText = document.createElement('div');
+        explanationText.style.cssText = `
+          font-size: 1.15em;
+          line-height: 1.6;
+          color: rgba(255, 255, 255, 0.95);
+        `;
+        explanationText.innerHTML = `<strong style="color: #bd00ff;">Why this role?</strong><br>${data.explanation}`;
+        explanationDiv.appendChild(explanationText);
+
+        // Update result header based on star count (if we have judge score)
+        let starCount = 0;
+        if (data.judgeScore !== undefined && data.judgeScore !== null) {
+          starCount = data.stars || Math.min(5, Math.max(1, Math.floor(data.judgeScore / 20)));
+
+          // Update header based on star count
+          const resultHeader = document.getElementById('result-header');
+          if (starCount === 5) {
+            resultHeader.textContent = '🌟 PERFECT CASTING! 🌟';
+          } else if (starCount === 4) {
+            resultHeader.textContent = '✨ EXCELLENT CASTING! ✨';
+          } else if (starCount === 3) {
+            resultHeader.textContent = '⭐ GOOD CASTING! ⭐';
+          } else if (starCount === 2) {
+            resultHeader.textContent = '💫 NICE CASTING! 💫';
+          } else {
+            resultHeader.textContent = '✨ CASTING COMPLETE ✨';
+          }
+        }
+
+        // Show judge score if available
+        if (data.judgeScore !== undefined && data.judgeScore !== null) {
+          const judgeDiv = document.createElement('div');
+          judgeDiv.style.cssText = `
+            background: linear-gradient(135deg, rgba(189, 0, 255, 0.2), rgba(0, 212, 255, 0.2));
+            border: 1px solid rgba(189, 0, 255, 0.5);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+          `;
+
+          const scoreTitle = document.createElement('div');
+          scoreTitle.style.cssText = 'color: #bd00ff; font-weight: bold; font-size: 1.2em; margin-bottom: 10px;';
+          scoreTitle.textContent = `🎄 Judge's Accuracy Score: ${Math.round(data.judgeScore)}%`;
+
+          const stars = document.createElement('div');
+          stars.style.cssText = 'font-size: 2em; color: #ffd700; margin-bottom: 15px;';
+          stars.textContent = '⭐'.repeat(starCount);
+
+          judgeDiv.appendChild(scoreTitle);
+          judgeDiv.appendChild(stars);
+
+          // Add judge comments if available
+          if (data.judgeComments) {
+            const commentsDiv = document.createElement('div');
+            commentsDiv.style.cssText = `
+              margin-top: 15px;
+              padding: 15px;
+              background: rgba(255, 255, 255, 0.1);
+              border-radius: 8px;
+              text-align: left;
+              color: rgba(255, 255, 255, 0.9);
+              font-style: italic;
+            `;
+            commentsDiv.innerHTML = `<strong style="color: #bd00ff;">Judge's Comments:</strong><br>${data.judgeComments}`;
+            judgeDiv.appendChild(commentsDiv);
+          }
+
+          explanationDiv.appendChild(judgeDiv);
+        }
+
+        // Show "Generating image..." status
+        if (!data.imageUrl) {
+          const imageStatus = document.createElement('div');
+          imageStatus.style.marginTop = '20px';
+          imageStatus.style.textAlign = 'center';
+          imageStatus.innerHTML = '<div class="spinner" style="width: 40px; height: 40px; margin: 10px auto;"></div><p>Generating your pet\'s costume image...</p>';
+          document.getElementById('result').appendChild(imageStatus);
+        } else {
+          // Show costume image if generated
+          const img = document.getElementById('costume-image');
+          img.src = data.imageUrl;
+          img.style.display = 'block';
+          img.alt = `${petData.name} as ${data.role} in a festive costume`;
+        }
+
+      } catch (error) {
+        console.error('Error:', error);
+
+        // Hide loading, show error
+        document.getElementById('loading').classList.remove('show');
+        document.getElementById('error').classList.add('show');
+        document.getElementById('error-text').textContent = error.message || 'Something went wrong. Please try again!';
+
+        // Show result section with reload button
+        setTimeout(() => {
+          document.getElementById('error').classList.remove('show');
+          document.getElementById('result').classList.add('show');
+          document.getElementById('role').textContent = '❄️ Try Again ❄️';
+          document.getElementById('explanation').textContent = 'The magic needs a moment to recharge!';
+        }, 3000);
+      }
+    }
+
+    // Health check on load
+    fetch('/api/health')
+      .then(res => res.json())
+      .then(data => console.log('🎄 Server status:', data.message))
+      .catch(err => console.error('Server not running. Start with: npm start'));
+  </script>
+</body>
+</html>
