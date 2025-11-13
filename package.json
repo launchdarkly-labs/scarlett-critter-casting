@@ -23,6 +23,7 @@
   "dependencies": {
     "@launchdarkly/node-server-sdk": "^9.0.0",
     "@launchdarkly/observability": "^0.4.9",
+    "@launchdarkly/observability-node": "^0.3.1",
     "@launchdarkly/server-sdk-ai": "^0.14.0",
     "@launchdarkly/server-sdk-ai-openai": "^0.3.0",
     "@launchdarkly/session-replay": "^0.4.9",

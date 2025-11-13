@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { init, type LDContext } from '@launchdarkly/node-server-sdk';
 import { initAi } from '@launchdarkly/server-sdk-ai';
+import { Observability } from '@launchdarkly/observability-node';
 import OpenAI from 'openai';
 import path from 'path';
 import multer from 'multer';
@@ -44,7 +45,14 @@ if (!sdkKey) {
   process.exit(1);
 }
 
-const ldClient = init(sdkKey);
+const ldClient = init(sdkKey, {
+  plugins: [
+    new Observability({
+      service: 'christmas-critter-casting',
+    }),
+  ],
+});
+
 const context: LDContext = {
   kind: 'user',
   key: 'christmas-critter-director',
@@ -350,11 +358,11 @@ Return a valid JSON response with role, explanation, costume, ${imageBase64 ? 'p
       }
 
       const chatCompletion = await openai.chat.completions.create({
-        model: imageBase64 ? 'gpt-4-vision-preview' : 'gpt-4o',
+        model: 'gpt-4o',  // gpt-4o has built-in vision - no need for separate model
         messages,
         temperature: 0.7,
         max_tokens: 1000,
-        response_format: imageBase64 ? undefined : {
+        response_format: {
           type: "json_schema",
           json_schema: {
             name: "pet_casting",
