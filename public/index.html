@@ -984,6 +984,44 @@
     </div>
   </div>
 
+  <!-- LaunchDarkly Client-Side SDK with Observability -->
+  <script type="module">
+    import * as LDClient from 'https://unpkg.com/launchdarkly-js-client-sdk@3/dist/ldclient.es.js';
+    import Observability from 'https://unpkg.com/@launchdarkly/observability@0.4/dist/index.es.js';
+    import SessionReplay from 'https://unpkg.com/@launchdarkly/session-replay@0.4/dist/index.es.js';
+
+    // Initialize LD client with observability plugins
+    const ldClient = LDClient.initialize('69128d5eae90b009c5194571', {
+      kind: 'user',
+      key: 'anonymous-user-' + Math.random().toString(36).substring(7),
+      anonymous: true
+    }, {
+      plugins: [
+        new Observability({
+          networkRecording: {
+            enabled: true,
+            recordHeadersAndBody: true
+          }
+        }),
+        new SessionReplay({
+          privacySetting: 'none'
+        })
+      ]
+    });
+
+    // Wait for SDK to initialize
+    ldClient.on('ready', () => {
+      console.log('✅ LaunchDarkly client-side SDK ready with Observability');
+    });
+
+    ldClient.on('failed', (error) => {
+      console.error('❌ LaunchDarkly client-side SDK failed:', error);
+    });
+
+    // Make client available globally for debugging
+    window.ldClient = ldClient;
+  </script>
+
   <script>
     let currentQuestion = 0;
     const answers = [];
