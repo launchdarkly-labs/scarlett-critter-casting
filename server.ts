@@ -142,8 +142,71 @@ app.post('/api/cast', upload.single('photo'), async (req, res) => {
       }
     }
 
+    // CALL 1: Static Vision Parser (always runs when photo uploaded)
+    if (imageBase64) {
+      try {
+        console.log('=== CALL 1: Vision Parser ===');
+        const visionResponse = await openai.chat.completions.create({
+          model: 'gpt-4o',
+          messages: [{
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: 'Analyze this pet photo and extract exact appearance details. Be very specific about colors, markings, and features. Respond with valid JSON only.'
+              },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:image/png;base64,${imageBase64}`
+                }
+              }
+            ]
+          }],
+          max_tokens: 500,
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "pet_description",
+              schema: {
+                type: "object",
+                properties: {
+                  appearance: {
+                    type: "string",
+                    description: "Detailed color and marking description from photo"
+                  },
+                  distinctiveFeatures: {
+                    type: "array",
+                    items: { type: "string" },
+                    description: "List of unique features"
+                  },
+                  expression: {
+                    type: "string",
+                    description: "Facial expression and body language"
+                  },
+                  fullDescription: {
+                    type: "string",
+                    description: "Complete natural description for image generation"
+                  }
+                },
+                required: ["appearance", "distinctiveFeatures", "expression", "fullDescription"],
+                additionalProperties: false
+              },
+              strict: true
+            }
+          }
+        });
+
+        petDescription = JSON.parse(visionResponse.choices[0].message.content || '{}');
+        console.log('Vision parser result:', petDescription);
+      } catch (visionError) {
+        console.error('Vision parsing failed:', visionError);
+        // Continue without pet description - LaunchDarkly will work with breed/personality only
+      }
+    }
+
     try {
-      // Try to create chat with LaunchDarkly AI
+      // CALL 2: Try to create chat with LaunchDarkly AI
 
       // Default value to use when config is not enabled
       const defaultValue = {
@@ -155,7 +218,11 @@ app.post('/api/cast', upload.single('photo'), async (req, res) => {
         petType: type,
         breed: breed || 'unknown breed',
         personality: answerText,
-        petImageBase64: imageBase64  // Pass image data for analysis
+        // Pass extracted pet description as text variables (from Call 1)
+        appearance: petDescription?.appearance || '',
+        distinctiveFeatures: petDescription?.distinctiveFeatures?.join(', ') || '',
+        expression: petDescription?.expression || '',
+        fullDescription: petDescription?.fullDescription || ''
       });
 
 
@@ -187,7 +254,7 @@ app.post('/api/cast', upload.single('photo'), async (req, res) => {
         role = castingResponse.role || 'The Bright Star';
         costumeDescription = castingResponse.costume || 'festive Christmas costume';
         imagePrompt = castingResponse.imagePrompt || '';
-        petDescription = castingResponse.petDescription || null;
+        // Note: petDescription already set from Call 1, not returned by LaunchDarkly
         casting = castingResponse.explanation || `${name} is perfect for the role of ${role}!`;
       } catch (parseError) {
         console.error('Failed to parse LaunchDarkly response as JSON, falling back to regex:', parseError);
@@ -232,15 +299,14 @@ app.post('/api/cast', upload.single('photo'), async (req, res) => {
       }
     } catch (error) {
       console.error('LaunchDarkly AI not available, falling back to OpenAI:', error);
-      // LaunchDarkly AI not available, fall back to direct OpenAI
-      // Build the complete prompt matching README exactly with variable substitution
+      // CALL 2 FALLBACK: LaunchDarkly AI not available, fall back to direct OpenAI
+      // Note: petDescription already extracted from Call 1 (if photo was uploaded)
       const breedText = breed || 'mixed breed';
       const systemPrompt = `You are a brilliant casting director and pet analyst for a critter play where pets play EVERY role!
 
 Your job is to:
-1. ${imageBase64 ? 'Analyze the uploaded pet photo to describe their exact appearance' : ''}
-2. Cast ${name}, a ${breedText} ${type}, based on their personality and appearance
-3. Generate a creative, detailed image prompt for DALL-E 3
+1. Cast ${name}, a ${breedText} ${type}, based on their personality${petDescription ? ' and appearance' : ' and breed characteristics'}
+2. Generate a creative, detailed image prompt for DALL-E 3
 
 🎭 IMPORTANT: Consider breed characteristics! For example:
 - Golden Retrievers are naturally friendly and nurturing
@@ -271,15 +337,9 @@ Consider BOTH personality AND breed characteristics to find the PERFECT match!
 ALWAYS respond with VALID JSON in this exact format:
 {
   "role": "chosen play role",
-${imageBase64 ? `  "petDescription": {
-    "appearance": "detailed color and marking description from photo",
-    "distinctiveFeatures": ["list", "of", "unique", "features"],
-    "expression": "facial expression and body language",
-    "fullDescription": "complete natural description for image generation"
-  },` : ''}
   "explanation": "2-3 sentences why this role fits their personality AND appearance/breed",
   "costume": "detailed festive costume that complements their features",
-  "imagePrompt": "FOCUS ON THE PET'S FACE - Close-up portrait style showing facial features clearly. Start with exact pet description (from photo or breed), layer personality visuals (confident stance, gentle eyes, etc.), add costume transformation (specific details like golden wings, decorative robes, festive accessories). Set in a crisp, starlit desert night near a mudbrick caravan stall with geometric decorative patterns and clay oil lamps. Style: Painterly realism / children's-book illustration style. Maintain pet's unique features while adding costume. Emphasize the pet's face and expression. Secular setting; no people or religious symbols."
+  "imagePrompt": "FOCUS ON THE PET'S FACE - Close-up portrait style showing facial features clearly. ${petDescription ? 'Start with: ' + petDescription.fullDescription : 'Start with breed characteristics'}, layer personality visuals (confident stance, gentle eyes, etc.), add costume transformation (specific details like golden wings, decorative robes, festive accessories). Set in a crisp, starlit desert night near a mudbrick caravan stall with geometric decorative patterns and clay oil lamps. Style: Painterly realism / children's-book illustration style. Maintain pet's unique features while adding costume. Emphasize the pet's face and expression. Secular setting; no people or religious symbols."
 }
 
 IMPORTANT IMAGE GENERATION NOTES:
@@ -310,10 +370,15 @@ SAFE REPLACEMENTS FOR DALL-E TO AVOID CONTENT FILTERS:
       let userPrompt = `Cast ${name}, a ${breedText} ${type}, in the play!
 
 Personality traits: ${answerText}
-${imageBase64 ? 'Photo provided - analyze it to describe the pet\'s exact appearance including colors, markings, and distinctive features.' : ''}
+${petDescription ? `
+Appearance (from photo):
+- Colors/Markings: ${petDescription.appearance}
+- Distinctive Features: ${petDescription.distinctiveFeatures.join(', ')}
+- Expression: ${petDescription.expression}
+- Full Description: ${petDescription.fullDescription}` : ''}
 
-Assign the PERFECT role that matches BOTH their personality AND ${imageBase64 ? 'appearance' : 'breed characteristics'}. Consider:
-- ${imageBase64 ? 'Their exact appearance from the photo' : ''}
+Assign the PERFECT role that matches BOTH their personality AND ${petDescription ? 'appearance' : 'breed characteristics'}. Consider:
+${petDescription ? `- Their exact appearance from the photo` : ''}
 - Their natural breed tendencies (energy level, typical temperament, physical traits)
 - Quiz personality results (how they actually behave)
 - How comfortable they'd be in different roles
@@ -323,7 +388,7 @@ You can choose ANY role!
 
 Create a detailed, creative DALL-E prompt that:
 1. FOCUSES ON THE PET'S FACE - close-up portrait style
-2. ${imageBase64 ? 'Starts with the exact pet description from petDescription.fullDescription' : 'Starts with breed characteristics (physical traits like coat type, ears, build, typical coloring)'}
+2. ${petDescription ? `Starts with: ${petDescription.fullDescription}` : 'Starts with breed characteristics (physical traits like coat type, ears, build, typical coloring)'}
 3. Layers in personality visuals (confident stance, gentle eyes, etc.)
 4. Adds specific costume details (golden wings, decorative robes, festive accessories, etc.)
 5. Sets scene in a crisp, starlit desert night near a mudbrick caravan stall with geometric decorative patterns and clay oil lamps
@@ -331,32 +396,17 @@ Create a detailed, creative DALL-E prompt that:
 7. Add "Secular setting; no people or religious symbols" to every prompt
 8. Avoid filter triggers: Use "crisp, starlit desert night" not "winter/snow", "mudbrick caravan stall" not "barn/stable", "clay oil lamps" not "lanterns", "geometric embroidery" not "star embroidery", "facial markings" not "face mask", "long floppy felt ears (decorative)" not "donkey ears"
 
-Return a valid JSON response with role, explanation, costume, ${imageBase64 ? 'petDescription, ' : ''}and imagePrompt.`;
+Return a valid JSON response with role, explanation, costume, and imagePrompt.`;
 
+      // Build messages for OpenAI fallback (text-only, no multimodal)
+      // Note: If photo was uploaded, petDescription already extracted in Call 1
       const messages: any[] = [
-        { role: 'system', content: systemPrompt }
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
       ];
 
-      // Add image to messages if provided
-      if (imageBase64) {
-        messages.push({
-          role: 'user',
-          content: [
-            { type: 'text', text: userPrompt },
-            {
-              type: 'image_url',
-              image_url: {
-                url: `data:image/png;base64,${imageBase64}`
-              }
-            }
-          ]
-        });
-      } else {
-        messages.push({ role: 'user', content: userPrompt });
-      }
-
       const chatCompletion = await openai.chat.completions.create({
-        model: 'gpt-4o',  // gpt-4o has built-in vision - no need for separate model
+        model: 'gpt-4o',
         messages,
         temperature: 0.7,
         max_tokens: 1000,
@@ -379,27 +429,12 @@ Return a valid JSON response with role, explanation, costume, ${imageBase64 ? 'p
                   type: "string",
                   description: "Description of the festive pet-friendly costume"
                 },
-                petDescription: {
-                  type: "object",
-                  description: "Detailed pet appearance",
-                  properties: {
-                    appearance: { type: "string" },
-                    distinctiveFeatures: {
-                      type: "array",
-                      items: { type: "string" }
-                    },
-                    expression: { type: "string" },
-                    fullDescription: { type: "string" }
-                  },
-                  required: ["appearance", "distinctiveFeatures", "expression", "fullDescription"],
-                  additionalProperties: false
-                },
                 imagePrompt: {
                   type: "string",
                   description: "Complete creative DALL-E prompt for generating the costumed pet image"
                 }
               },
-              required: imageBase64 ? ["role", "explanation", "costume", "imagePrompt", "petDescription"] : ["role", "explanation", "costume", "imagePrompt"],
+              required: ["role", "explanation", "costume", "imagePrompt"],
               additionalProperties: false
             },
             strict: true
@@ -411,7 +446,7 @@ Return a valid JSON response with role, explanation, costume, ${imageBase64 ? 'p
       role = castingResponse.role || 'The Bright Star';
       costumeDescription = castingResponse.costume || 'festive costume';
       imagePrompt = castingResponse.imagePrompt || '';
-      petDescription = castingResponse.petDescription || null;
+      // Note: petDescription already set from Call 1, don't override it
       casting = castingResponse.explanation || `${name} is perfect for the role of ${role}!`;
     }
 

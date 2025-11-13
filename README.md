@@ -104,16 +104,18 @@ Create an AI configuration in your LaunchDarkly dashboard:
 - `{{petType}}` - The type of pet (dog, cat, rabbit, bird, etc.)
 - `{{breed}}` - The specific breed (optional, defaults to "mixed breed")
 - `{{personality}}` - Comma-separated personality traits from quiz
-- `{{petImageBase64}}` - Base64 encoded image of the pet (when photo uploaded)
+- `{{appearance}}` - Detailed color and marking description (from photo analysis, empty if no photo)
+- `{{distinctiveFeatures}}` - Comma-separated list of unique features (from photo, empty if no photo)
+- `{{expression}}` - Facial expression and body language (from photo, empty if no photo)
+- `{{fullDescription}}` - Complete natural description for image generation (from photo, empty if no photo)
 
 **System Prompt**:
 ```
 You are a brilliant casting director and pet analyst for a critter play where pets play EVERY role!
 
 Your job is to:
-1. {{#petImageBase64}}Analyze the uploaded pet photo to describe their exact appearance{{/petImageBase64}}
-2. Cast {{petName}}, a {{breed}} {{petType}}, based on their personality and appearance
-3. Generate a creative, detailed image prompt for DALL-E 3
+1. Cast {{petName}}, a {{breed}} {{petType}}, based on their personality{{#appearance}} and appearance{{/appearance}}
+2. Generate a creative, detailed image prompt for DALL-E 3
 
 🎭 IMPORTANT: Consider breed characteristics! For example:
 - Golden Retrievers are naturally friendly and nurturing
@@ -141,20 +143,20 @@ Available roles (traditional + fun additions):
 
 Consider BOTH personality AND breed characteristics to find the PERFECT match!
 
+{{#appearance}}
+Pet's Appearance (from photo analysis):
+- Colors/Markings: {{appearance}}
+- Distinctive Features: {{distinctiveFeatures}}
+- Expression: {{expression}}
+- Full Description: {{fullDescription}}
+{{/appearance}}
+
 ALWAYS respond with VALID JSON in this exact format:
 {
   "role": "chosen play role",
-  {{#petImageBase64}}
-  "petDescription": {
-    "appearance": "detailed color and marking description from photo",
-    "distinctiveFeatures": ["list", "of", "unique", "features"],
-    "expression": "facial expression and body language",
-    "fullDescription": "complete natural description for image generation"
-  },
-  {{/petImageBase64}}
   "explanation": "2-3 sentences why this role fits their personality AND appearance/breed",
   "costume": "detailed festive costume that complements their features",
-  "imagePrompt": "FOCUS ON THE PET'S FACE - Close-up portrait style showing facial features clearly. {{#petImageBase64}}Start with the exact pet description from petDescription.fullDescription{{/petImageBase64}}{{^petImageBase64}}Start with {{breed}} {{petType}}{{/petImageBase64}}, layer personality visuals (confident stance, gentle eyes, etc.), add costume transformation (specific details like golden wings, decorative robes, festive accessories). Set in a crisp, starlit desert night near a mudbrick caravan stall with geometric decorative patterns and clay oil lamps. Style: Painterly realism / children's-book illustration style. Maintain pet's unique features while adding costume. Emphasize the pet's face and expression. Secular setting; no people or religious symbols."
+  "imagePrompt": "FOCUS ON THE PET'S FACE - Close-up portrait style showing facial features clearly. {{#fullDescription}}Start with: {{fullDescription}}{{/fullDescription}}{{^fullDescription}}Start with {{breed}} {{petType}}{{/fullDescription}}, layer personality visuals (confident stance, gentle eyes, etc.), add costume transformation (specific details like golden wings, decorative robes, festive accessories). Set in a crisp, starlit desert night near a mudbrick caravan stall with geometric decorative patterns and clay oil lamps. Style: Painterly realism / children's-book illustration style. Maintain pet's unique features while adding costume. Emphasize the pet's face and expression. Secular setting; no people or religious symbols."
 }
 
 IMPORTANT IMAGE GENERATION NOTES:
@@ -188,10 +190,16 @@ SAFE REPLACEMENTS FOR DALL-E TO AVOID CONTENT FILTERS:
 Cast {{petName}}, a {{breed}} {{petType}}, in the play!
 
 Personality traits: {{personality}}
-{{#petImageBase64}}Photo provided - analyze it to describe the pet's exact appearance including colors, markings, and distinctive features.{{/petImageBase64}}
+{{#appearance}}
+Appearance (from photo):
+- Colors/Markings: {{appearance}}
+- Distinctive Features: {{distinctiveFeatures}}
+- Expression: {{expression}}
+- Full Description: {{fullDescription}}
+{{/appearance}}
 
-Assign the PERFECT role that matches BOTH their personality AND {{#petImageBase64}}appearance{{/petImageBase64}}{{^petImageBase64}}breed characteristics{{/petImageBase64}}. Consider:
-- {{#petImageBase64}}Their exact appearance from the photo{{/petImageBase64}}
+Assign the PERFECT role that matches BOTH their personality AND {{#appearance}}appearance{{/appearance}}{{^appearance}}breed characteristics{{/appearance}}. Consider:
+{{#appearance}}- Their exact appearance from the photo{{/appearance}}
 - Their natural breed tendencies (energy level, typical temperament, physical traits)
 - Quiz personality results (how they actually behave)
 - How comfortable they'd be in different roles
@@ -201,14 +209,14 @@ You can choose ANY role!
 
 Create a detailed, creative DALL-E prompt that:
 1. FOCUSES ON THE PET'S FACE - close-up portrait style
-2. {{#petImageBase64}}Starts with the exact pet description from petDescription.fullDescription{{/petImageBase64}}{{^petImageBase64}}Starts with breed characteristics (physical traits like coat type, ears, build, typical coloring){{/petImageBase64}}
+2. {{#fullDescription}}Starts with: {{fullDescription}}{{/fullDescription}}{{^fullDescription}}Starts with breed characteristics (physical traits like coat type, ears, build, typical coloring){{/fullDescription}}
 3. Layers in personality visuals (confident stance, gentle eyes, etc.)
 4. Adds specific costume details (golden wings, decorative robes, festive accessories, etc.)
 5. Sets scene in a crisp, starlit desert night near a mudbrick caravan stall with geometric decorative patterns and clay oil lamps
 6. Use "painterly realism / children's-book illustration style" instead of artist names
 7. Add "Secular setting; no people or religious symbols" to every prompt
 
-Return a valid JSON response with role, explanation, costume, {{#petImageBase64}}petDescription, {{/petImageBase64}}and imagePrompt.
+Return a valid JSON response with role, explanation, costume, and imagePrompt.
 ```
 
 **Note on Judge**: The built-in **Accuracy** judge automatically evaluates if the casting decision matches the personality input. No custom criteria needed - it just works!
@@ -256,30 +264,44 @@ Visit `http://localhost:3000` to see the magic! 🎄
 
 1. **Enter Pet Info**: Name, type (dog, cat, etc.), and optionally breed
 2. **Answer 5 Questions**: Fun personality quiz about your pet's behavior
-3. **Optional Photo**: Upload for multimodal analysis
-4. **AI Casting Decision**: LaunchDarkly AI (`gpt-4o`) analyzes personality + breed traits
-5. **Image Generation**: GPT-Image-1 creates a custom costume image matching the assigned role
-6. **Judge Evaluation**: Second AI model scores the casting accuracy (0-100)
-7. **Results Display**: See role, explanation, costume image, and star rating!
+3. **Optional Photo**: Upload for vision analysis
+4. **Vision Analysis** (if photo uploaded): GPT-4o extracts appearance details (colors, markings, expression)
+5. **AI Casting Decision**: LaunchDarkly AI (`gpt-4o`) receives personality + appearance data and assigns the perfect role
+6. **Image Generation**: DALL-E 3 creates a custom costume image using the AI-generated prompt
+7. **Judge Evaluation**: LaunchDarkly Judge scores the casting accuracy (0-100)
+8. **Results Display**: See role, explanation, costume image, and star rating!
 
-### 🎨 When are images generated?
+### 🎨 How does the 3-Call AI Architecture work?
 
-**Image generation happens in the backend AFTER casting**, following this flow:
+**The backend uses 3 separate OpenAI calls**, following this flow:
 
-1. **User submits quiz** → Frontend sends data to `/api/cast` endpoint
-2. **AI casting** → LaunchDarkly AI config determines the perfect role using GPT-4o
-3. **Image generation** → DALL-E 3 creates costume image directly based on:
-   - Pet name
-   - Pet breed (if provided)
-   - Pet type
-   - Assigned role
-   - Festive Christmas nativity theme
-4. **Judge evaluation** → LaunchDarkly Judge scores the casting
-5. **Results returned** → All data sent back to frontend including image URL
+**Call 1: Vision Parser** (Static OpenAI - when photo uploaded)
+- Input: Pet photo (base64)
+- Model: GPT-4o vision
+- Output: Structured pet description `{appearance, distinctiveFeatures, expression, fullDescription}`
+- Purpose: Extract exact visual details from the photo
+- **This is NOT managed in LaunchDarkly** - it's hardcoded for consistency
 
-**Note**: Image generation takes 10-30 seconds. The loading screen displays during this process.
+**Call 2: Casting & Prompt Builder** (LaunchDarkly AI Config)
+- Input: Pet name, breed, personality, + description from Call 1
+- Model: GPT-4o (text-only, managed via LaunchDarkly)
+- Output: `{role, explanation, costume, imagePrompt}`
+- Purpose: Assign role and build DALL-E prompt
+- **Fully managed in LaunchDarkly dashboard** - prompts, A/B testing, judge evaluation
 
-**Code location**: Image generation logic is in `server.ts:109-134`
+**Call 3: Image Generation** (Static DALL-E)
+- Input: `imagePrompt` from Call 2
+- Model: DALL-E 3
+- Output: Costume image URL
+- Purpose: Generate the final costume image
+- **This is NOT managed in LaunchDarkly** - standard DALL-E call
+
+**Note**: Total processing takes 15-40 seconds. The loading screen displays during this process.
+
+**Code locations**:
+- Call 1: `server.ts:145-206` (Vision Parser)
+- Call 2: `server.ts:208-299` (LaunchDarkly AI Config)
+- Call 3: `server.ts:453-555` (DALL-E Generation)
 
 ## 📁 Project Structure
 
@@ -332,10 +354,11 @@ Health check endpoint
 This project showcases multimodal AI across multiple stages:
 
 - **Text Input**: 5 personality questions + breed information
-- **Visual Input**: Pet photo upload (optional - coming soon!)
-- **Text Generation**: LaunchDarkly AI + GPT-4o for casting
-- **Image Generation**: GPT-Image-1 creates NEW costume images from text
-- **Quality Scoring**: AI Judge evaluates casting decisions
+- **Visual Input**: Pet photo upload (optional) → Analyzed by GPT-4o vision (Call 1)
+- **Vision-to-Text**: GPT-4o extracts structured appearance data from photos
+- **Text Generation**: LaunchDarkly AI + GPT-4o for casting (Call 2)
+- **Image Generation**: DALL-E 3 creates costume images from AI-generated prompts (Call 3)
+- **Quality Scoring**: LaunchDarkly AI Judge evaluates casting decisions
 
 ## 🐛 Troubleshooting
 
