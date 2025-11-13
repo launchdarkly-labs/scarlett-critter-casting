@@ -991,37 +991,50 @@
     import Observability from 'https://unpkg.com/@launchdarkly/observability@0.4/dist/index.es.js';
     import SessionReplay from 'https://unpkg.com/@launchdarkly/session-replay@0.4/dist/index.es.js';
 
-    // Initialize LD client with observability plugins
-    const ldClient = LDClient.initialize('69128d5eae90b009c5194571', {
-      kind: 'user',
-      key: 'anonymous-user-' + Math.random().toString(36).substring(7),
-      anonymous: true
-    }, {
-      plugins: [
-        new Observability({
-          tracingOrigins: true, // attribute frontend requests to backend domains
-          networkRecording: {
-            enabled: true,
-            recordHeadersAndBody: true
-          }
-        }),
-        new SessionReplay({
-          privacySetting: 'none'
-        })
-      ]
-    });
+    // Fetch client ID from server and initialize LD client
+    fetch('/api/config')
+      .then(res => res.json())
+      .then(config => {
+        if (!config.clientId) {
+          console.warn('⚠️ LaunchDarkly client ID not configured');
+          return;
+        }
 
-    // Wait for SDK to initialize
-    ldClient.on('ready', () => {
-      console.log('✅ LaunchDarkly client-side SDK ready with Observability');
-    });
+        // Initialize LD client with observability plugins
+        const ldClient = LDClient.initialize(config.clientId, {
+          kind: 'user',
+          key: 'anonymous-user-' + Math.random().toString(36).substring(7),
+          anonymous: true
+        }, {
+          plugins: [
+            new Observability({
+              tracingOrigins: true, // attribute frontend requests to backend domains
+              networkRecording: {
+                enabled: true,
+                recordHeadersAndBody: true
+              }
+            }),
+            new SessionReplay({
+              privacySetting: 'none'
+            })
+          ]
+        });
 
-    ldClient.on('failed', (error) => {
-      console.error('❌ LaunchDarkly client-side SDK failed:', error);
-    });
+        // Wait for SDK to initialize
+        ldClient.on('ready', () => {
+          console.log('✅ LaunchDarkly client-side SDK ready with Observability');
+        });
 
-    // Make client available globally for debugging
-    window.ldClient = ldClient;
+        ldClient.on('failed', (error) => {
+          console.error('❌ LaunchDarkly client-side SDK failed:', error);
+        });
+
+        // Make client available globally for debugging
+        window.ldClient = ldClient;
+      })
+      .catch(err => {
+        console.error('Failed to load LaunchDarkly config:', err);
+      });
   </script>
 
   <script>

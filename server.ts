@@ -605,6 +605,13 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', message: '🎄 Christmas Critter Casting Call is running!' });
 });
 
+// Client config endpoint
+app.get('/api/config', (_req, res) => {
+  res.json({
+    clientId: process.env.VITE_LAUNCHDARKLY_CLIENT_ID
+  });
+});
+
 // Test endpoint for LaunchDarkly AI config
 app.get('/api/test-ld', async (_req, res) => {
   try {
@@ -634,6 +641,69 @@ app.get('/api/test-ld', async (_req, res) => {
   } catch (error) {
     res.status(500).json({
       error: 'Failed to test LaunchDarkly',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Test endpoint for vision analysis
+app.post('/api/test-vision', upload.single('photo'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No photo uploaded' });
+    }
+
+    // Process image same way as main endpoint
+    const pngBuffer = await sharp(req.file.buffer)
+      .resize(512, 512, {
+        fit: 'inside',
+        withoutEnlargement: true
+      })
+      .png()
+      .toBuffer();
+    const imageBase64 = pngBuffer.toString('base64');
+
+    console.log('=== VISION TEST ===');
+    console.log('Image size:', pngBuffer.length, 'bytes');
+    console.log('Base64 length:', imageBase64.length, 'characters');
+
+    // Test direct GPT-4o vision call
+    const testResponse = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: 'Describe this pet in detail. Include fur color, eye color, distinctive features, and breed if recognizable. Be very specific about colors.'
+            },
+            {
+              type: 'image_url',
+              image_url: {
+                url: `data:image/png;base64,${imageBase64}`
+              }
+            }
+          ]
+        }
+      ],
+      max_tokens: 500
+    });
+
+    const description = testResponse.choices[0].message.content;
+    console.log('Vision response:', description);
+    console.log('=== END VISION TEST ===');
+
+    res.json({
+      success: true,
+      description,
+      imageSize: pngBuffer.length,
+      base64Length: imageBase64.length
+    });
+  } catch (error) {
+    console.error('Vision test failed:', error);
+    res.status(500).json({
+      error: 'Vision test failed',
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
