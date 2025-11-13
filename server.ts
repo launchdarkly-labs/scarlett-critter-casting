@@ -47,9 +47,7 @@ if (!sdkKey) {
 
 const ldClient = init(sdkKey, {
   plugins: [
-    new Observability({
-      service: 'christmas-critter-casting',
-    }),
+    new Observability(),
   ],
 });
 
