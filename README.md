@@ -156,7 +156,7 @@ ALWAYS respond with VALID JSON in this exact format:
   "role": "chosen play role",
   "explanation": "2-3 sentences why this role fits their personality AND appearance/breed",
   "costume": "detailed festive costume that complements their features",
-  "imagePrompt": "FOCUS ON THE PET'S FACE - Close-up portrait style showing facial features clearly. {{#fullDescription}}Start with: {{fullDescription}}{{/fullDescription}}{{^fullDescription}}Start with {{breed}} {{petType}}{{/fullDescription}}, layer personality visuals (confident stance, gentle eyes, etc.), add costume transformation (specific details like golden wings, decorative robes, festive accessories). Set in a crisp, starlit desert night near a mudbrick caravan stall with geometric decorative patterns and clay oil lamps. Style: Painterly realism / children's-book illustration style. Maintain pet's unique features while adding costume. Emphasize the pet's face and expression. Secular setting; no people or religious symbols."
+  "imagePrompt": "FOCUS ON THE PET'S FACE - Close-up portrait style showing facial features clearly. {{#fullDescription}}Start with: {{fullDescription}}{{/fullDescription}}{{^fullDescription}}Start with {{breed}} {{petType}}{{/fullDescription}}, layer personality visuals (confident stance, gentle eyes, etc.), add costume transformation (specific details like golden wings, decorative robes, festive accessories). Set in a magical holiday scene: crisp, starlit desert night near a cozy mudbrick caravan stall with warm golden glow from clay oil lamps, scattered hay and straw, twinkling stars above, geometric decorative patterns with festive touches. Create a warm, enchanting atmosphere that feels like a special holiday performance. Style: Painterly realism / children's-book illustration style. Maintain pet's unique features while adding costume. Emphasize the pet's face and expression. Secular setting; no people or religious symbols."
 }
 
 IMPORTANT IMAGE GENERATION NOTES:
@@ -212,7 +212,7 @@ Create a detailed, creative DALL-E prompt that:
 2. {{#fullDescription}}Starts with: {{fullDescription}}{{/fullDescription}}{{^fullDescription}}Starts with breed characteristics (physical traits like coat type, ears, build, typical coloring){{/fullDescription}}
 3. Layers in personality visuals (confident stance, gentle eyes, etc.)
 4. Adds specific costume details (golden wings, decorative robes, festive accessories, etc.)
-5. Sets scene in a crisp, starlit desert night near a mudbrick caravan stall with geometric decorative patterns and clay oil lamps
+5. Sets scene in a magical holiday atmosphere: crisp, starlit desert night near a cozy mudbrick caravan stall with warm golden glow from clay oil lamps, scattered hay and straw, twinkling stars above, geometric decorative patterns with festive touches - create a warm, enchanting atmosphere that feels like a special holiday performance
 6. Use "painterly realism / children's-book illustration style" instead of artist names
 7. Add "Secular setting; no people or religious symbols" to every prompt
 
