@@ -642,8 +642,16 @@ app.get('/api/health', (_req, res) => {
 
 // Client config endpoint
 app.get('/api/config', (_req, res) => {
+  const clientId = process.env.LAUNCHDARKLY_CLIENT_ID;
+
+  if (!clientId) {
+    console.warn('⚠️ LAUNCHDARKLY_CLIENT_ID not set in environment variables');
+  } else {
+    console.log('✅ Serving LaunchDarkly client ID:', clientId.substring(0, 10) + '...');
+  }
+
   res.json({
-    clientId: process.env.VITE_LAUNCHDARKLY_CLIENT_ID
+    clientId: clientId
   });
 });
 
@@ -794,6 +802,27 @@ Note: This is for a lighthearted, family-friendly pet costume contest - just cut
   }
 });
 
+// Test endpoint for observability verification
+app.get('/api/test-observability', (_req, res) => {
+  const clientId = process.env.LAUNCHDARKLY_CLIENT_ID;
+
+  res.json({
+    success: true,
+    clientIdConfigured: !!clientId,
+    clientIdPrefix: clientId ? clientId.substring(0, 10) + '...' : 'Not set',
+    message: clientId ?
+      'Client ID is configured. Check browser console for observability initialization logs.' :
+      'Please set LAUNCHDARKLY_CLIENT_ID in your .env file',
+    troubleshooting: {
+      step1: 'Open browser developer console',
+      step2: 'Look for "🚀 Initializing LaunchDarkly" message',
+      step3: 'Verify "✅ Observability is now tracking" appears',
+      step4: 'Check for any error messages',
+      step5: 'Visit LaunchDarkly dashboard > Observability to see sessions'
+    }
+  });
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`\n🎄 Christmas Critter Casting Call Server 🎄`);
@@ -801,5 +830,10 @@ app.listen(PORT, () => {
   console.log(`\nFeatures enabled:`);
   console.log(`  ✅ LaunchDarkly AI: ${sdkKey ? 'Yes' : 'No'}`);
   console.log(`  ${process.env.OPENAI_API_KEY ? '✅' : '⚠️'} DALL-E 3: ${process.env.OPENAI_API_KEY ? 'Yes' : 'No (add OPENAI_API_KEY)'}`);
+  console.log(`  ${process.env.LAUNCHDARKLY_CLIENT_ID ? '✅' : '⚠️'} Observability: ${process.env.LAUNCHDARKLY_CLIENT_ID ? 'Yes' : 'No (add LAUNCHDARKLY_CLIENT_ID)'}`);
   console.log(`\nOpen http://localhost:${PORT} to start casting!\n`);
+
+  if (!process.env.LAUNCHDARKLY_CLIENT_ID) {
+    console.log('⚠️  To enable observability, add LAUNCHDARKLY_CLIENT_ID to your .env file');
+  }
 });

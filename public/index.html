@@ -994,43 +994,109 @@
     // Fetch client ID from server and initialize LD client
     fetch('/api/config')
       .then(res => res.json())
-      .then(config => {
+      .then(async config => {
         if (!config.clientId) {
           console.warn('⚠️ LaunchDarkly client ID not configured');
+          console.warn('Please set LAUNCHDARKLY_CLIENT_ID in your .env file');
           return;
         }
 
-        // Initialize LD client with observability plugins
-        const ldClient = LDClient.initialize(config.clientId, {
+        console.log('🚀 Initializing LaunchDarkly with client ID:', config.clientId.substring(0, 10) + '...');
+
+        // Create a more detailed user context for better session tracking
+        const sessionId = sessionStorage.getItem('ld-session-id') || 'session-' + Date.now() + '-' + Math.random().toString(36).substring(7);
+        sessionStorage.setItem('ld-session-id', sessionId);
+
+        const userContext = {
           kind: 'user',
-          key: 'anonymous-user-' + Math.random().toString(36).substring(7),
-          anonymous: true
-        }, {
+          key: sessionId,
+          anonymous: true,
+          custom: {
+            app: 'christmas-critter-casting',
+            version: '1.0.0',
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent,
+            screenResolution: `${screen.width}x${screen.height}`,
+            platform: navigator.platform
+          }
+        };
+
+        // Initialize LD client with enhanced observability configuration
+        const ldClient = LDClient.initialize(config.clientId, userContext, {
           plugins: [
             new Observability({
-              tracingOrigins: true, // attribute frontend requests to backend domains
+              manualStart: false, // Ensure automatic start
+              tracingOrigins: [
+                window.location.hostname,
+                'localhost:3000',
+                'localhost',
+                '/api'
+              ],
               networkRecording: {
                 enabled: true,
-                recordHeadersAndBody: true
+                recordHeadersAndBody: true,
+                destinations: [
+                  window.location.hostname,
+                  'localhost:3000',
+                  '/api'
+                ]
+              },
+              breadcrumbs: {
+                enabled: true,
+                maxBreadcrumbs: 100
               }
             }),
             new SessionReplay({
-              privacySetting: 'none'
+              privacySetting: 'none',
+              manualStart: false // Ensure automatic start
             })
-          ]
+          ],
+          debug: true // Enable debug mode for troubleshooting
         });
 
-        // Wait for SDK to initialize
+        // Wait for SDK to initialize properly
+        try {
+          await ldClient.waitForInitialization({ timeout: 5000 });
+          console.log('✅ LaunchDarkly client-side SDK initialized successfully');
+          console.log('✅ Observability is now tracking user session:', sessionId);
+          console.log('✅ Session Replay is recording');
+
+          // Verify plugins are loaded
+          const hasObservability = ldClient.getPlugins && ldClient.getPlugins().some(p => p.name === 'Observability');
+          const hasSessionReplay = ldClient.getPlugins && ldClient.getPlugins().some(p => p.name === 'SessionReplay');
+
+          console.log('📊 Observability plugin loaded:', hasObservability !== false ? '✅' : '❌');
+          console.log('🎥 Session Replay plugin loaded:', hasSessionReplay !== false ? '✅' : '❌');
+
+          // Send a custom event to verify tracking
+          ldClient.track('observability-initialized', {
+            sessionId: sessionId,
+            timestamp: new Date().toISOString()
+          });
+
+        } catch (error) {
+          console.error('❌ LaunchDarkly initialization timeout or error:', error);
+        }
+
+        // Additional event handlers for debugging
         ldClient.on('ready', () => {
-          console.log('✅ LaunchDarkly client-side SDK ready with Observability');
+          console.log('📍 LaunchDarkly SDK ready event fired');
         });
 
         ldClient.on('failed', (error) => {
-          console.error('❌ LaunchDarkly client-side SDK failed:', error);
+          console.error('❌ LaunchDarkly SDK failed event:', error);
+        });
+
+        ldClient.on('change', (settings) => {
+          console.log('🔄 LaunchDarkly flags changed:', settings);
         });
 
         // Make client available globally for debugging
         window.ldClient = ldClient;
+        window.ldSessionId = sessionId;
+
+        console.log('💡 Debug: Access LaunchDarkly client with window.ldClient');
+        console.log('💡 Debug: Session ID available at window.ldSessionId');
       })
       .catch(err => {
         console.error('Failed to load LaunchDarkly config:', err);
