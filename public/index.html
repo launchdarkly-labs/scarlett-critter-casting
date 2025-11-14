@@ -988,8 +988,8 @@
   <!-- LaunchDarkly Client-Side SDK with Observability -->
   <script type="module">
     import * as LDClient from 'https://unpkg.com/launchdarkly-js-client-sdk@3/dist/ldclient.es.js';
-    import Observability from 'https://unpkg.com/@launchdarkly/observability@0.4/dist/index.es.js';
-    import SessionReplay from 'https://unpkg.com/@launchdarkly/session-replay@0.4/dist/index.es.js';
+    import Observability from 'https://unpkg.com/@launchdarkly/observability@0.4.9/dist/observability.js';
+    import SessionReplay from 'https://unpkg.com/@launchdarkly/session-replay@0.4.9/dist/session-replay.js';
 
     // Fetch client ID from server and initialize LD client
     fetch('/api/config')
@@ -1050,8 +1050,7 @@
               privacySetting: 'none',
               manualStart: false // Ensure automatic start
             })
-          ],
-          debug: true // Enable debug mode for troubleshooting
+          ]
         });
 
         // Wait for SDK to initialize properly
@@ -1060,6 +1059,7 @@
           console.log('✅ LaunchDarkly client-side SDK initialized successfully');
           console.log('✅ Observability is now tracking user session:', sessionId);
           console.log('✅ Session Replay is recording');
+          console.log('📍 Despite network errors, observability may still be working locally');
 
           // Verify plugins are loaded
           const hasObservability = ldClient.getPlugins && ldClient.getPlugins().some(p => p.name === 'Observability');
@@ -1076,6 +1076,22 @@
 
         } catch (error) {
           console.error('❌ LaunchDarkly initialization timeout or error:', error);
+          console.log('⚠️ Network errors are expected if the client ID is from a different project');
+          console.log('📍 Checking if observability is still working...');
+
+          // Check if observability is still loaded despite network errors
+          setTimeout(() => {
+            if (window.ldClient) {
+              console.log('✅ Client exists despite network errors');
+              // Force send a tracking event
+              window.ldClient.track('test-observability-event', {
+                sessionId: sessionId,
+                timestamp: new Date().toISOString(),
+                message: 'Testing if observability works despite network errors'
+              });
+              console.log('📤 Sent test event to observability');
+            }
+          }, 2000);
         }
 
         // Additional event handlers for debugging
