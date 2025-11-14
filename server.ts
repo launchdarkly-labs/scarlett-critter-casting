@@ -483,56 +483,80 @@ Return a valid JSON response with role, explanation, costume, and imagePrompt.`;
             // Enhance the AI-generated prompt with all pet details and face focus
             finalImagePrompt = `IMPORTANT: This is a wholesome, family-friendly image for a fun pet play. For entertainment purposes only - just adorable pets in costumes!
 
-FOCUS ON THE PET'S FACE - Close-up portrait style showing the pet's facial features clearly.
+CREATE A PHOTOREALISTIC PORTRAIT of THIS SPECIFIC PET from the uploaded photo - not a generic ${type}, but THIS EXACT INDIVIDUAL PET with their unique features.
 
-CRITICAL: The pet MUST maintain their exact natural colors and markings as described. Do not change fur color or breed characteristics. Costumes should complement, not override, their natural appearance.
+THE PET'S EXACT APPEARANCE (DO NOT ALTER):
+${petDescription.fullDescription}
+- Specific coloring: ${petDescription.appearance}
+- Unique identifying marks: ${petDescription.distinctiveFeatures?.join(', ')}
+- Natural expression: ${petDescription.expression}
 
-${imagePrompt}
+CRITICAL INSTRUCTIONS:
+1. This must look like THE EXACT SAME PET from the photo - same face, same markings, same colors
+2. DO NOT change, improve, or idealize any physical features
+3. DO NOT create a generic ${type} - this is a portrait of THIS SPECIFIC individual pet
+4. The costume should be ADDED TO the pet, not replace their features
+5. MAINTAIN every detail: exact fur color, eye color, facial structure, ear shape, nose color
 
-CRITICAL DETAILS TO INCLUDE (MAINTAIN EXACT COLORS):
-- Pet appearance: ${petDescription.appearance}
-- Distinctive features: ${petDescription.distinctiveFeatures?.join(', ')}
-- Expression: ${petDescription.expression}
-- Full description: ${petDescription.fullDescription}
-- Costume: ${costumeDescription}
+NOW ADD THE COSTUME:
+${costumeDescription} for the role of ${role}
 
-The image should clearly show the pet's face and expression with their natural breed colors, capturing their unique personality while wearing the ${role} costume.
-Style: Painterly realism / children's-book illustration style, with emphasis on the pet's face and expression.
+The final image should look like someone took the EXACT pet from the photo and dressed them up in the costume. Every marking, every color, every facial feature must match exactly.
+
+${imagePrompt.includes('magical holiday scene') ? imagePrompt.substring(imagePrompt.indexOf('Set in')) : 'Set in a magical holiday scene: crisp, starlit desert night near a cozy mudbrick caravan stall with warm golden glow from clay oil lamps, scattered hay and straw, twinkling stars above.'}
+
+Style: Photorealistic pet portrait with costume elements added. The pet's face should be instantly recognizable as the same individual from the uploaded photo.
 Note: This is for a lighthearted, family-friendly pet costume contest - just cute animals in costumes for fun!`;
           } else {
             // Create comprehensive fallback prompt with all pet details
             finalImagePrompt = `IMPORTANT: This is a wholesome, family-friendly image for a fun pet play. For entertainment purposes only - just adorable pets in costumes!
 
-FOCUS ON THE PET'S FACE - Close-up portrait style, photorealistic, heartwarming image of ${name}, a ${fullPetDescription}, dressed as ${role} in a play.
+CREATE A PHOTOREALISTIC PORTRAIT of THIS SPECIFIC PET - not a generic ${type}, but THIS EXACT INDIVIDUAL:
 
-KEY FEATURES TO EMPHASIZE:
-- Appearance: ${petDescription.appearance}
-- Distinctive marks: ${petDescription.distinctiveFeatures?.join(', ')}
-- Expression: ${petDescription.expression}
-- The pet is wearing: ${costumeDescription}
+EXACT PET DESCRIPTION (DO NOT ALTER ANY DETAILS):
+${petDescription.fullDescription}
+
+CRITICAL IDENTIFYING FEATURES:
+- Exact coloring: ${petDescription.appearance}
+- Unique marks: ${petDescription.distinctiveFeatures?.join(', ')}
+- Natural expression: ${petDescription.expression}
+
+This is ${name}, and the image MUST look exactly like them - same face structure, same markings, same fur patterns, same everything.
+
+NOW ADD THE COSTUME:
+Dressed as ${role} wearing ${costumeDescription}
+
+The costume should be added TO the pet's natural appearance, not replace it. Think of it as if someone photographed THIS EXACT pet after putting a costume on them.
 
 Their personality (${answerText}) shines through their ${petDescription.expression}.
-The pet looks happy and comfortable in their festive ${role} costume.
 
-Style: Painterly realism / children's-book illustration style, focusing on the pet's face and expression.
-Set in a magical holiday scene: crisp, starlit desert night near a cozy mudbrick caravan stall with warm golden glow from clay oil lamps, scattered hay and straw, twinkling stars above, geometric decorative patterns with festive touches. Warm, enchanting atmosphere that feels like a special holiday performance.
-Ultra-detailed facial features, every whisker and fur tuft visible.
-The pet's face should be the clear focal point, showing their unique features while wearing the ${role} costume.
+Style: Photorealistic pet portrait, focusing on the pet's actual face and features.
+Set in a magical holiday scene: crisp, starlit desert night near a cozy mudbrick caravan stall with warm golden glow from clay oil lamps, scattered hay and straw, twinkling stars above, geometric decorative patterns with festive touches.
+
+The final result should be instantly recognizable as the SAME INDIVIDUAL PET from the uploaded photo, just wearing a costume.
 Secular setting; no people or religious symbols.
 
 Note: This is for a lighthearted, family-friendly pet costume contest - just cute animals in costumes for fun!`;
           }
         } else if (imagePrompt) {
-          // Use the AI-generated prompt with face focus enhancement
+          // Use the AI-generated prompt with breed accuracy enhancement
           finalImagePrompt = `IMPORTANT: This is a wholesome, family-friendly image for a fun pet play. For entertainment purposes only - just adorable pets in costumes!
 
-FOCUS ON THE PET'S FACE - Close-up portrait style showing the pet's facial features clearly.
+CREATE A PHOTOREALISTIC PORTRAIT of a ${breedDescription} with ACCURATE breed characteristics.
 
-CRITICAL: The pet must look like a real ${breedDescription} with accurate breed colors and markings. Do not change the pet's natural fur color or breed characteristics. The costume should complement their natural appearance, not override it.
+CRITICAL: This must look like a REAL ${breedDescription}:
+- Accurate breed-specific coloring and markings
+- Correct fur texture and length for the breed
+- Proper facial structure and proportions
+- Natural breed characteristics maintained
+
+DO NOT create an idealized or cartoon version - this should look like a real, individual ${breedDescription}.
 
 ${imagePrompt}
 
-The image should emphasize the pet's face and expression, capturing their unique personality while maintaining breed-accurate colors and features.
+The costume should be ADDED TO the pet's natural appearance, not replace or hide their breed features.
+
+Style: Photorealistic pet portrait showing the pet's actual breed characteristics with costume elements added.
 Note: This is for a lighthearted, family-friendly pet costume contest - just cute animals in costumes for fun!`;
         } else {
           // Basic fallback without pet description
@@ -540,15 +564,22 @@ Note: This is for a lighthearted, family-friendly pet costume contest - just cut
           const petDesc = breedDescription;
           finalImagePrompt = `IMPORTANT: This is a wholesome, family-friendly image for a fun pet play. For entertainment purposes only - just adorable pets in costumes!
 
-FOCUS ON THE PET'S FACE - Close-up portrait style, photorealistic, heartwarming image of a ${petDesc} named ${name} dressed as ${role} in a play.
-The ${type} is wearing: ${costumeDescription}
-Their personality shines through - ${answerText}
-The pet looks happy and comfortable in their festive costume.
+CREATE A PHOTOREALISTIC PORTRAIT of a ${petDesc} named ${name}.
 
-Style: Painterly realism / children's-book illustration style, with clear focus on the pet's face.
-Set in a magical holiday scene: crisp, starlit desert night near a cozy mudbrick caravan stall with warm golden glow from clay oil lamps, scattered hay and straw, twinkling stars above, geometric decorative patterns with festive touches. Warm, enchanting atmosphere that feels like a special holiday performance.
-Ultra-detailed facial features, every whisker and fur tuft visible.
-The pet's face should be the focal point, clearly recognizable as a ${breedDescription} dressed up for the play.
+The ${type} should have realistic ${breedDescription} features:
+- Natural breed-appropriate coloring
+- Accurate breed proportions and structure
+- Realistic fur texture
+
+Now ADD THE COSTUME:
+Dressed as ${role} wearing ${costumeDescription}
+
+The costume should complement their natural appearance. Their personality (${answerText}) shines through.
+
+Style: Photorealistic pet portrait with focus on the pet's face.
+Set in a magical holiday scene: crisp, starlit desert night near a cozy mudbrick caravan stall with warm golden glow from clay oil lamps, scattered hay and straw, twinkling stars above, geometric decorative patterns with festive touches.
+
+The pet should look like a real ${breedDescription}, not a cartoon or idealized version.
 Secular setting; no people or religious symbols.
 
 Note: This is for a lighthearted, family-friendly pet costume contest - just cute animals in costumes for fun!`;
