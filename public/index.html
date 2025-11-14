@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://pub.observability.app.launchdarkly.com https://otel.observability.app.launchdarkly.com https://clientsdk.launchdarkly.com https://events.launchdarkly.com https://stream.launchdarkly.com https://api.openai.com; worker-src data: blob:;">
+  <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://pub.observability.app.launchdarkly.com https://otel.observability.app.launchdarkly.com https://clientsdk.launchdarkly.com https://clientstream.launchdarkly.com https://events.launchdarkly.com https://stream.launchdarkly.com https://app.launchdarkly.com https://api.openai.com https://unpkg.com; worker-src data: blob:;">
   <title>Calling All Christmas Critters - LaunchDarkly</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -1053,13 +1053,22 @@
           ]
         });
 
-        // Wait for SDK to initialize properly
+        // Wait for SDK to initialize properly with manual timeout
         try {
-          await ldClient.waitForInitialization({ timeout: 5000 });
+          // Create a manual timeout since SDK doesn't support timeout parameter
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Initialization timeout')), 5000)
+          );
+
+          await Promise.race([
+            ldClient.waitForInitialization(),
+            timeoutPromise
+          ]);
+
           console.log('✅ LaunchDarkly client-side SDK initialized successfully');
           console.log('✅ Observability is now tracking user session:', sessionId);
           console.log('✅ Session Replay is recording');
-          console.log('📍 Despite network errors, observability may still be working locally');
+          console.log('📍 Observability plugins are active');
 
           // Verify plugins are loaded
           const hasObservability = ldClient.getPlugins && ldClient.getPlugins().some(p => p.name === 'Observability');
