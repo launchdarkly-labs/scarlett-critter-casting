@@ -45,7 +45,7 @@ I added LaunchDarkly observability to my Christmas-play pet casting app thinking
 <summary><b>📸 Screenshot 5 of 6: AI casting result continued - with eval/b></summary>
 <div align="center">
   <img src="public/images/screenshot_5.png" width="600" alt="Generated Costume - DALL-E creates the outfit"/>
-  <p><i>DALL-E 3 generates a custom costume for your pet</i></p>
+  <p><i>See your complete result with the AI evaluation score</i></p>
 </div>
 </details>
 
@@ -53,7 +53,7 @@ I added LaunchDarkly observability to my Christmas-play pet casting app thinking
 <summary><b>📸 Screenshot 6 of 6: Another generation</b></summary>
 <div align="center">
   <img src="public/images/screenshot_6.png" width="600" alt="Final Result - Complete with evaluation score"/>
-  <p><i>See your complete result with the AI evaluation score</i></p>
+  <p><i>Generate a custom costume for your pet</i></p>
 </div>
 </details>
 
