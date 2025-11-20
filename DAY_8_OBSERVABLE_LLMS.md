@@ -5,7 +5,22 @@
 
 **🎄 What users do and if my AI is working 🎄**
 
-I added LaunchDarkly observability to my Christmas-play pet casting app thinking I'd catch bugs. Instead, I unwrapped the perfect gift 🎁: Session replay shows me WHAT users do. Online evaluations show me IF my model made the right casting decision with real-time accuracy scores. Together, they're like milk 🥛 and cookies 🍪: each good alone, but magical together for production AI monitoring.
+I added LaunchDarkly observability to my Christmas-play pet casting app thinking I'd catch bugs. Instead, I unwrapped the perfect gift 🎁: session replay shows me WHAT users do, online evaluations show me IF my model made the right casting decision with real-time accuracy scores. Together, they're like milk 🥛 and cookies 🍪: each good alone, but magical together for production AI monitoring.
+
+## 🎨 See the App in Action
+
+<table>
+  <tr>
+    <td><img src="public/images/screenshot_1.png" width="200" alt="Welcome Screen"/></td>
+    <td><img src="public/images/screenshot_2.png" width="200" alt="Personality Quiz"/></td>
+    <td><img src="public/images/screenshot_3.png" width="200" alt="Photo Upload"/></td>
+  </tr>
+  <tr>
+    <td><img src="public/images/screenshot_4.png" width="200" alt="AI Casting Result"/></td>
+    <td><img src="public/images/screenshot_5.png" width="200" alt="Generated Costume"/></td>
+    <td><img src="public/images/screenshot_6.png" width="200" alt="Final Result with Score"/></td>
+  </tr>
+</table>
 
 ## ⏱️ Discovery #1: Users' 40-second patience threshold ❄️
 
