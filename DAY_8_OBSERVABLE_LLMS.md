@@ -9,18 +9,53 @@ I added LaunchDarkly observability to my Christmas-play pet casting app thinking
 
 ## 🎨 See the App in Action
 
-<table>
-  <tr>
-    <td><img src="public/images/screenshot_1.png" width="200" alt="Welcome Screen"/></td>
-    <td><img src="public/images/screenshot_2.png" width="200" alt="Personality Quiz"/></td>
-    <td><img src="public/images/screenshot_3.png" width="200" alt="Photo Upload"/></td>
-  </tr>
-  <tr>
-    <td><img src="public/images/screenshot_4.png" width="200" alt="AI Casting Result"/></td>
-    <td><img src="public/images/screenshot_5.png" width="200" alt="Generated Costume"/></td>
-    <td><img src="public/images/screenshot_6.png" width="200" alt="Final Result with Score"/></td>
-  </tr>
-</table>
+<details open>
+<summary><b>📸 Screenshot 1 of 6: Welcome screen</b></summary>
+<div align="center">
+  <img src="public/images/screenshot_1.png" width="600" alt="Welcome Screen - Start your pet's casting journey"/>
+  <p><i>Start your pet's magical journey to the nativity</i></p>
+</div>
+</details>
+
+<details>
+<summary><b>📸 Screenshot 2 of 6: Personality quiz</b></summary>
+<div align="center">
+  <img src="public/images/screenshot_2.png" width="600" alt="Personality Quiz - Answer questions about your pet"/>
+  <p><i>Answer fun questions about your pet's personality</i></p>
+</div>
+</details>
+
+<details>
+<summary><b>📸 Screenshot 3 of 6: Photo upload</b></summary>
+<div align="center">
+  <img src="public/images/screenshot_3.png" width="600" alt="Photo Upload - Optional photo for better casting"/>
+  <p><i>Upload a photo for more personalized casting (optional)</i></p>
+</div>
+</details>
+
+<details>
+<summary><b>📸 Screenshot 4 of 6: AI casting result</b></summary>
+<div align="center">
+  <img src="public/images/screenshot_4.png" width="600" alt="AI Casting Result - Your pet's role revealed"/>
+  <p><i>Discover which nativity character your pet will play</i></p>
+</div>
+</details>
+
+<details>
+<summary><b>📸 Screenshot 5 of 6: AI casting result continued - with eval/b></summary>
+<div align="center">
+  <img src="public/images/screenshot_5.png" width="600" alt="Generated Costume - DALL-E creates the outfit"/>
+  <p><i>DALL-E 3 generates a custom costume for your pet</i></p>
+</div>
+</details>
+
+<details>
+<summary><b>📸 Screenshot 6 of 6: Another generation</b></summary>
+<div align="center">
+  <img src="public/images/screenshot_6.png" width="600" alt="Final Result - Complete with evaluation score"/>
+  <p><i>See your complete result with the AI evaluation score</i></p>
+</div>
+</details>
 
 ## ⏱️ Discovery #1: Users' 40-second patience threshold ❄️
 
