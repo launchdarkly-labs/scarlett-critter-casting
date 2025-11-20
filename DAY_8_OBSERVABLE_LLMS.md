@@ -59,6 +59,8 @@ I added LaunchDarkly observability to my Christmas-play pet casting app thinking
 
 ## ⏱️ Discovery #1: Users' 40-second patience threshold ❄️
 
+The complete AI casting process takes 30-45 seconds: personality analysis (2-3s), role matching (1-2s), DALL-E 3 costume generation (25-35s), and evaluation scoring (2-3s). That's a long time to stare at a loading spinner wondering if something broke.
+
 ### Session replay revealed 🔍:
 
 ```
@@ -94,7 +96,7 @@ As each completes:
 ⏳ Step 3: eval Evaluation
 ```
 
-Session replay showed users hovering over the back button at 25 seconds, then relaxing when they saw "Step 2: Generating Costume Image (10-30s)," they knew what was happening AND how long it would take.
+Session replay showed users hovering over the back button at 25 seconds, then relaxing when they saw "Step 2: Generating Costume Image (10-30s)." The moment they understood DALL-E was creating their pet's costume (not the app freezing), they were willing to wait. Users need to know the AI is working hard, not hardly working.
 
 ## 🎅 Discovery #2: Observability + online evaluations give the complete picture 🤖
 
@@ -115,7 +117,7 @@ Here's where it gets magical ✨. Session replay shows EFFECTIVENESS. Online eva
 - Reasoning: "Costume contains unsafe elements: eyeliner, ribbons"
 - Wait, what? The AI suggested face paint and ribbons, evals eval said NO
 
-**The Real Problem:** Online evals use a model-agnostic eval (MAJ) - an AI agent that evaluates other AI outputs for either quality, safety, and accuracy. The out-of-the-box accuracy eval is VERY safety-conscious. The eval's actual comments:
+**The Real Problem:** Online evals use a model-agnostic eval (MAJ) - an AI agent that evaluates other AI outputs for quality, safety, or accuracy. The out-of-the-box accuracy eval is VERY safety-conscious. The eval's actual comments:
 - "Costume includes eyeliner which could be harmful to pets" (It's a DALL-E image!)
 - "Ribbons pose entanglement risk" 
 - "Bells are a choking hazard" (It's AI-generated art!)
@@ -181,7 +183,7 @@ With BOTH:
 → Would benefit from custom eval criteria to avoid this confusion
 ```
 
-**The Hilarious Reality:** The eval thinks we're putting ACTUAL ribbons on ACTUAL cats. It doesn't realize these are AI-generated images. So when the casting suggests "sparkly collar with bells," the eval judge practically calls animal services.
+The eval thinks we're putting ACTUAL ribbons on ACTUAL cats. It doesn't realize these are AI-generated images. So when the casting suggests "sparkly collar with bells," the eval judge practically calls animal services.
 
 ## 🎁 Your turn: See the complete picture 🔔
 
